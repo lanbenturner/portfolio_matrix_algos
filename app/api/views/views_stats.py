@@ -19,3 +19,12 @@ def calculate_stats():
     # For example:
     stats_data = {'return': 0.05, 'risk': 0.03}
     return jsonify(stats_data)
+
+
+# Endpoint to calculate stats
+@stats_blueprint.route('/portfolio_stats', methods=['GET'])
+def portfolio_stats():
+    # Implement your logic here to calculate portfolio stats
+    # For example:
+    portfolio_data = {'return': 0.05, 'risk': 0.03}
+    return jsonify(portfolio_data)
