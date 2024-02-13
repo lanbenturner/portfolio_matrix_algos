@@ -7,6 +7,7 @@ template creation.
 """
 
 from flask import Blueprint, request, jsonify
+from app.algos.calc_portfolio_stats import calculate_portfolio_stats
 
 
 # Create a Blueprint for the "Stats" API
@@ -24,6 +25,11 @@ def calculate_stats():
 # Endpoint to calculate stats
 @stats_blueprint.route('/portfolio_stats', methods=['POST'])
 def portfolio_stats():
-    #Get the JSON data from the request body
+    # Get the JSON data from the request body
     data = request.json
-    return jsonify(data)
+    
+    # Call the function from calc_portfolio_stats.py
+    stats_result = calculate_portfolio_stats(data)
+    
+    # Return the calculated stats as a JSON response
+    return jsonify(stats_result)
