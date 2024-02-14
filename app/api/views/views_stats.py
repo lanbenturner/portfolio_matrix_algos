@@ -7,7 +7,7 @@ template creation.
 """
 
 from flask import Blueprint, request, jsonify
-from app.algos.calc_portfolio_stats import calculate_portfolio_stats
+from app.algos.calc_portfolio_stats import calculate_portfolio_equity, calculate_portfolio_weighting
 
 # Create a Blueprint for the "Stats" API
 stats_blueprint = Blueprint('stats', __name__)
@@ -18,8 +18,16 @@ def portfolio_stats():
     # Get the JSON data from the request body
     data = request.json
     
-    # Call the function to calculate portfolio stats
-    stats_result = calculate_portfolio_stats(data)
+    # Call the functions from algos to calculate portfolio stats
+    portfolio_equity_result = calculate_portfolio_equity(data)
+    portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity_result['portfolio_equity'])
+    
+    # Construct the response JSON object
+    response = {
+        'portfolio_equity': portfolio_equity_result['portfolio_equity'],
+        'portfolio_weighting': portfolio_weighting_result
+    }
     
     # Return the calculated stats as a JSON response
-    return jsonify(stats_result)
+    return jsonify(response)
+
