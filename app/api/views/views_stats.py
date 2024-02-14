@@ -11,7 +11,8 @@ from app.algos.calc_portfolio_stats import (
     calculate_portfolio_equity,
     calculate_portfolio_weighting,
     calculate_group_equity,
-    calculate_group_weighting
+    calculate_group_weighting,
+    calculate_group_portfolio_weighting
 )
 
 # Create a Blueprint for the "Stats" API
@@ -28,15 +29,18 @@ def portfolio_stats():
     portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity_result['portfolio_equity'])
     group_equity_result = calculate_group_equity(data)
     group_weighting_result = calculate_group_weighting(data, group_equity_result)
+    group_portfolio_weighting_result = calculate_group_portfolio_weighting(portfolio_equity_result['portfolio_equity'], group_equity_result)
     
     # Construct the response JSON object
     response = {
         'portfolio_equity': portfolio_equity_result['portfolio_equity'],
         'portfolio_weighting': portfolio_weighting_result,
         'group_equity': group_equity_result,
-        'group_weighting': group_weighting_result
+        'group_weighting': group_weighting_result,
+        'group_portfolio_weighting': group_portfolio_weighting_result
     }
     
     # Return the calculated stats as a JSON response
     return jsonify(response)
+
 

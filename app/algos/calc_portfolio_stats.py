@@ -96,3 +96,15 @@ def calculate_group_weighting(data, group_equity):
     return group_weighting
 
 
+def calculate_group_portfolio_weighting(portfolio_equity, group_equity):
+    # Initialize a dictionary to store group portfolio weightings
+    group_portfolio_weighting = {}
+
+    # Iterate through each group and calculate its portfolio weighting
+    for group_assignment, equity in group_equity.items():
+        if portfolio_equity != 0:
+            group_portfolio_weighting[group_assignment] = round((equity / portfolio_equity) * 100, 2)
+        else:
+            group_portfolio_weighting[group_assignment] = 0  # Set to 0 if portfolio equity is 0
+
+    return group_portfolio_weighting
