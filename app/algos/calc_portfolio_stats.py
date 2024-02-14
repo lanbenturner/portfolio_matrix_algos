@@ -1,6 +1,7 @@
 """
-This function takes the input data and returns a modified version of it.
- For testing purposes, let's just add 10 to each equity value.
+This module calculates all of the portfolio stats. It is called
+in the app/api/views/views_stats.py module at this endpoing:
+http://127.0.0.1:5000/stats/portfolio_stats
 """
 
 
@@ -19,20 +20,27 @@ def calculate_portfolio_equity(data):
 
 
 def calculate_portfolio_weighting(data, portfolio_equity_rounded):
-    # Extract equity values from the assets in portfolio_data
-    equities = [asset['equity'] for asset in data.get('assets', [])]
+    # Extract asset data from the input JSON
+    assets = data.get('assets', [])
 
-    # Calculate Portfolio Weighting
-    portfolio_weighting = []
-    for equity in equities:
+    # Initialize dictionary to store asset weightings
+    asset_weightings = {}
+
+    # Calculate Portfolio Weighting for each asset
+    for asset in assets:
+        equity = asset.get('equity', 0)
+        symbol = asset.get('symbol')
+        
         if portfolio_equity_rounded != 0:  # Avoid division by zero
-            asset_weighting = (equity / portfolio_equity_rounded) * 100
+            asset_weighting = round((equity / portfolio_equity_rounded) * 100, 2)
         else:
             asset_weighting = 0  # Set weighting to 0 if portfolio equity is 0
-        asset_weighting = round(asset_weighting, 2)  # Round to 2 decimal places
-        portfolio_weighting.append(asset_weighting)
+        
+        # Store asset weighting in the dictionary
+        asset_weightings[symbol] = asset_weighting
 
-    return portfolio_weighting
+    return asset_weightings
+
 
 
 

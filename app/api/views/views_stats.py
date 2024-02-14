@@ -2,7 +2,7 @@
 This view will create endpoints only for calculating
 the stats of assets, groups, and portfolio. These
 endpoints will not be used for calculating investments
-or calculating portfolio template stats during
+or calculating portfolio template stats during portfolio
 template creation.
 """
 
