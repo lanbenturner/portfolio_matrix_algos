@@ -42,7 +42,6 @@ def calculate_group_equity(data):
     return group_equity
 
 
-
 def calculate_portfolio_weighting(data, portfolio_equity_rounded):
     # Extract asset data from the input JSON
     assets = data.get('assets', [])
@@ -66,6 +65,34 @@ def calculate_portfolio_weighting(data, portfolio_equity_rounded):
     return asset_weightings
 
 
+def calculate_group_weighting(data, group_equity):
+    # Initialize a dictionary to store group weightings
+    group_weighting = {}
 
+    # Iterate through the list of assets
+    for asset in data.get('assets', []):
+        # Get the group assignment of the current asset
+        group_assignment = asset.get('group_assignment')
+
+        # Get the equity of the current asset
+        equity = asset.get('equity')
+
+        # Calculate the group weighting for the current asset
+        if group_assignment in group_equity:
+            group_equity_for_group = group_equity[group_assignment]
+            if group_equity_for_group != 0:
+                asset_weighting = round((equity / group_equity_for_group) * 100, 2)
+            else:
+                asset_weighting = 0  # Set weighting to 0 if group equity is 0
+        else:
+            asset_weighting = 0  # Set weighting to 0 if group assignment not found
+
+        # Update the group_weighting dictionary with the asset's weighting
+        if group_assignment in group_weighting:
+            group_weighting[group_assignment].append(asset_weighting)
+        else:
+            group_weighting[group_assignment] = [asset_weighting]
+
+    return group_weighting
 
 
