@@ -25,22 +25,34 @@ def portfolio_stats():
     data = request.json
     
     # Call the functions from algos to calculate portfolio stats
-    portfolio_equity_result = calculate_portfolio_equity(data)
-    portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity_result['portfolio_equity'])
+    portfolio_equity = calculate_portfolio_equity(data)
+    portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity)
     group_equity_result = calculate_group_equity(data)
     group_weighting_result = calculate_group_weighting(data, group_equity_result)
-    group_portfolio_weighting_result = calculate_group_portfolio_weighting(portfolio_equity_result['portfolio_equity'], group_equity_result)
+    group_portfolio_weighting_result = calculate_group_portfolio_weighting(portfolio_equity, group_equity_result)
     
-    # Construct the response JSON object
+    # Construct the formatted response JSON object
     response = {
-        'portfolio_equity': portfolio_equity_result['portfolio_equity'],
-        'portfolio_weighting': portfolio_weighting_result,
-        'group_equity': group_equity_result,
-        'group_weighting': group_weighting_result,
-        'group_portfolio_weighting': group_portfolio_weighting_result
+        "portfolio": [
+            {"portfolio_equity": portfolio_equity}
+        ],
+        "asset": [
+            {
+                "symbol": asset['symbol'],
+                "equity": asset['equity'],
+                "group_assignment": asset['group_assignment'],
+                "portfolio_weighting": next((weight for symbol, weight in portfolio_weighting_result if symbol == asset['symbol']), None),
+                "group_weighting": group_weighting_result.get(asset['group_assignment'], {}).get(asset['symbol'], 0),
+            } for asset in data.get('assets', [])
+        ],
+        "asset_group": [
+            {
+                "group_name": group,
+                "group_equity": equity,
+                "group_portfolio_weighting": group_portfolio_weighting_result[group],
+            } for group, equity in group_equity_result.items()
+        ]
     }
     
-    # Return the calculated stats as a JSON response
+    # Return the formatted stats as a JSON response
     return jsonify(response)
-
-
