@@ -1,11 +1,11 @@
-from flask import Flask
+from flask import Flask, jsonify
 from .api.views.views_stats import stats_blueprint
 from .api.views.views_invest import invest_blueprint
 import os
 import logging
 from logging.handlers import RotatingFileHandler
 
-# Assuming config.py is in the root directory, 
+# Assuming config.py is in the root directory,
 # adjust the import path as necessary
 from config import DevelopmentConfig, ProductionConfig
 
@@ -44,4 +44,14 @@ def create_app(config_name=None):
         app.logger.setLevel(log_level)
         app.logger.info('YourApp startup')
 
+    # Generic error handler
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # Log the error details
+        app.logger.error(f'An error occurred: {str(e)}', exc_info=True)
+
+        # Return a generic error response
+        return jsonify({'error': 'An internal server error occurred'}), 500
+
     return app
+

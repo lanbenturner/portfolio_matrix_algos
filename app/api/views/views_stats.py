@@ -6,7 +6,7 @@ or calculating portfolio template stats during portfolio
 template creation.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app as app
 from app.algos.calc_portfolio_stats import (
     calculate_portfolio_equity,
     calculate_portfolio_weighting,
@@ -18,53 +18,64 @@ from app.algos.calc_portfolio_stats import (
 # Create a Blueprint for the "Stats" API
 stats_blueprint = Blueprint("stats", __name__)
 
-
 # Endpoint to calculate portfolio stats
 @stats_blueprint.route("/portfolio_stats", methods=["POST"])
 def portfolio_stats():
-    # Get the JSON data from the request body
-    data = request.json
+    # Log the receipt of the request without logging its content
+    app.logger.info(f'Received request for /portfolio_stats')
 
-    # Call the functions from algos to calculate portfolio stats
-    portfolio_equity = calculate_portfolio_equity(data)
-    portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity)
-    group_equity_result = calculate_group_equity(data)
-    group_weighting_result = calculate_group_weighting(data, group_equity_result)
-    group_portfolio_weighting_result = calculate_group_portfolio_weighting(
-        portfolio_equity, group_equity_result
-    )
+    try:
+        # Get the JSON data from the request body
+        data = request.json
 
-    # Construct the formatted response JSON object
-    response = {
-        "portfolio": [{"portfolio_equity": portfolio_equity}],
-        "asset": [
-            {
-                "symbol": asset["symbol"],
-                "equity": asset["equity"],
-                "group_assignment": asset["group_assignment"],
-                "portfolio_weighting": next(
-                    (
-                        weight
-                        for symbol, weight in portfolio_weighting_result
-                        if symbol == asset["symbol"]
+        # Call the functions from algos to calculate portfolio stats
+        portfolio_equity = calculate_portfolio_equity(data)
+        portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity)
+        group_equity_result = calculate_group_equity(data)
+        group_weighting_result = calculate_group_weighting(data, group_equity_result)
+        group_portfolio_weighting_result = calculate_group_portfolio_weighting(
+            portfolio_equity, group_equity_result
+        )
+
+        # Construct the formatted response JSON object
+        response = {
+            "portfolio": [{"portfolio_equity": portfolio_equity}],
+            "asset": [
+                {
+                    "symbol": asset["symbol"],
+                    "equity": asset["equity"],
+                    "group_assignment": asset["group_assignment"],
+                    "portfolio_weighting": next(
+                        (
+                            weight
+                            for symbol, weight in portfolio_weighting_result
+                            if symbol == asset["symbol"]
+                        ),
+                        None,
                     ),
-                    None,
-                ),
-                "group_weighting": group_weighting_result.get(
-                    asset["group_assignment"], {}
-                ).get(asset["symbol"], 0),
-            }
-            for asset in data.get("assets", [])
-        ],
-        "asset_group": [
-            {
-                "group_name": group,
-                "group_equity": equity,
-                "group_portfolio_weighting": group_portfolio_weighting_result[group],
-            }
-            for group, equity in group_equity_result.items()
-        ],
-    }
+                    "group_weighting": group_weighting_result.get(
+                        asset["group_assignment"], {}
+                    ).get(asset["symbol"], 0),
+                }
+                for asset in data.get("assets", [])
+            ],
+            "asset_group": [
+                {
+                    "group_name": group,
+                    "group_equity": equity,
+                    "group_portfolio_weighting": group_portfolio_weighting_result[group],
+                }
+                for group, equity in group_equity_result.items()
+            ],
+        }
 
-    # Return the formatted stats as a JSON response
-    return jsonify(response)
+        # Log successful processing of the request
+        app.logger.info(f'Successfully processed /portfolio_stats request')
+
+        # Return the formatted stats as a JSON response
+        return jsonify(response)
+
+    except Exception as e:
+        # Log the error along with a message indicating the request could not be processed
+        app.logger.error(f'Failed to process /portfolio_stats request: {str(e)}', exc_info=True)
+        return jsonify({'error': 'An error occurred processing the portfolio stats'}), 500
