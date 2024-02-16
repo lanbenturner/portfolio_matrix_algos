@@ -1,0 +1,3 @@
+[flake8]
+exclude = venv,other_directory_to_exclude
+max-line-length = 88
