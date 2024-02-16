@@ -6,7 +6,9 @@ or calculating portfolio template stats during portfolio
 template creation.
 """
 
-from flask import Blueprint, request, jsonify, current_app as app
+from flask import Blueprint, request, jsonify, current_app as app, abort
+from functools import wraps
+import os
 from app.algos.calc_portfolio_stats import (
     calculate_portfolio_equity,
     calculate_portfolio_weighting,
@@ -15,11 +17,29 @@ from app.algos.calc_portfolio_stats import (
     calculate_group_portfolio_weighting,
 )
 
+# Assuming your secret token is stored in an environment variable named SECRET_TOKEN
+SECRET_TOKEN = os.environ.get('SECRET_TOKEN', 'default_secret_token')
+
+def token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Get token from request headers
+        token = request.headers.get('Authorization')
+        
+        # Check if token is valid
+        if not token or token != SECRET_TOKEN:
+            app.logger.error('Unauthorized access attempt.')
+            abort(401, description="Unauthorized: Invalid or missing token.")
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Create a Blueprint for the "Stats" API
 stats_blueprint = Blueprint("stats", __name__)
 
-# Endpoint to calculate portfolio stats
+# Apply the token_required decorator to secure the endpoint
 @stats_blueprint.route("/portfolio_stats", methods=["POST"])
+@token_required
 def portfolio_stats():
     # Log the receipt of the request without logging its content
     app.logger.info(f'Received request for /portfolio_stats')
