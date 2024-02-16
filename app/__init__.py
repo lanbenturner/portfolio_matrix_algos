@@ -1,18 +1,24 @@
-"""
-This module is where you can reference all url prefixes
-"""
-
 from flask import Flask
 from .api.views.views_stats import stats_blueprint
 from .api.views.views_invest import invest_blueprint
+import os
 
-def create_app():
+# Assuming config.py is in the root directory, adjust the import path as necessary
+from config import DevelopmentConfig, ProductionConfig
+
+def create_app(config_name=None):
     app = Flask(__name__)
 
-    # Register the "Stats" blueprint
-    app.register_blueprint(stats_blueprint, url_prefix='/stats')
+    if config_name is None:
+        config_name = os.getenv('FLASK_CONFIG', 'DevelopmentConfig')
 
-    # Register the "Invest" blueprint
+    if config_name == 'ProductionConfig':
+        app.config.from_object('config.ProductionConfig')
+    else:
+        app.config.from_object('config.DevelopmentConfig')
+
+    # Register the blueprints
+    app.register_blueprint(stats_blueprint, url_prefix='/stats')
     app.register_blueprint(invest_blueprint, url_prefix='/invest')
 
     return app
