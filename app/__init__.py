@@ -24,6 +24,12 @@ def create_app(config_name=None):
     app.register_blueprint(stats_blueprint, url_prefix="/stats")
     app.register_blueprint(invest_blueprint, url_prefix="/invest")
 
+    # Health check endpoint
+    @app.route("/health", methods=["GET"])
+    def health_check():
+        # Simply return a 200 OK response indicating the app is online
+        return jsonify(message="Portfolio Matrix python back-end is online and functioning correctly"), 200
+
     # Logging setup for production environment
     if not app.debug and not app.testing:
         # Set log level
