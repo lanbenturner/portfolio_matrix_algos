@@ -52,6 +52,15 @@ def create_app(config_name=None):
 
         # Return a generic error response
         return jsonify({'error': 'An internal server error occurred'}), 500
+    
+    # Security headers
+    @app.after_request
+    def add_security_headers(response):
+        response.headers["Content-Security-Policy"] = "default-src 'self';"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        return response
 
     return app
-
