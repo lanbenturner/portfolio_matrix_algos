@@ -5,10 +5,7 @@ http://127.0.0.1:5000/stats/portfolio_stats
 """
 
 
-def calculate_portfolio_equity(data):
-    # Extract asset data from the input JSON
-    assets = data.get("assets", [])
-
+def calculate_portfolio_equity(assets):
     # Calculate Portfolio Equity
     portfolio_equity = sum(asset.get("equity", 0) for asset in assets)
 
@@ -19,12 +16,12 @@ def calculate_portfolio_equity(data):
     return portfolio_equity_rounded
 
 
-def calculate_group_equity(data):
+def calculate_group_equity(assets):
     # Initialize a dictionary to store group equity
     group_equity = {}
 
     # Iterate through the list of assets
-    for asset in data.get("assets", []):
+    for asset in assets:
         # Get the group assignment of the current asset
         group_assignment = asset.get("group_assignment")
 
@@ -42,10 +39,7 @@ def calculate_group_equity(data):
     return group_equity
 
 
-def calculate_portfolio_weighting(data, portfolio_equity_rounded):
-    # Extract asset data from the input JSON
-    assets = data.get("assets", [])
-
+def calculate_portfolio_weighting(assets, portfolio_equity_rounded):
     # Initialize list to store asset weightings as tuples
     asset_weightings = []
 
@@ -65,10 +59,10 @@ def calculate_portfolio_weighting(data, portfolio_equity_rounded):
     return asset_weightings
 
 
-def calculate_group_weighting(data, group_equity):
+def calculate_group_weighting(assets, group_equity):
     group_weighting = {}
 
-    for asset in data.get("assets", []):
+    for asset in assets:
         group_assignment = asset.get("group_assignment")
         equity = asset.get("equity", 0)
         symbol = asset.get("symbol")
@@ -104,3 +98,4 @@ def calculate_group_portfolio_weighting(portfolio_equity, group_equity):
             )
 
     return group_portfolio_weighting
+

@@ -37,22 +37,20 @@ def token_required(f):
 # Create a Blueprint for the "Stats" API
 stats_blueprint = Blueprint("stats", __name__)
 
-# Apply the token_required decorator to secure the endpoint
 @stats_blueprint.route("/portfolio_stats", methods=["POST"])
 @token_required
 def portfolio_stats():
-    # Log the receipt of the request without logging its content
     app.logger.info(f'Received request for /portfolio_stats')
 
     try:
-        # Get the JSON data from the request body
-        data = request.json
+        # Directly use the JSON data from the request as the list of assets
+        assets = request.json  # This is now a list of assets directly
 
         # Call the functions from algos to calculate portfolio stats
-        portfolio_equity = calculate_portfolio_equity(data)
-        portfolio_weighting_result = calculate_portfolio_weighting(data, portfolio_equity)
-        group_equity_result = calculate_group_equity(data)
-        group_weighting_result = calculate_group_weighting(data, group_equity_result)
+        portfolio_equity = calculate_portfolio_equity(assets)
+        portfolio_weighting_result = calculate_portfolio_weighting(assets, portfolio_equity)
+        group_equity_result = calculate_group_equity(assets)
+        group_weighting_result = calculate_group_weighting(assets, group_equity_result)
         group_portfolio_weighting_result = calculate_group_portfolio_weighting(
             portfolio_equity, group_equity_result
         )
@@ -77,7 +75,7 @@ def portfolio_stats():
                         asset["group_assignment"], {}
                     ).get(asset["symbol"], 0),
                 }
-                for asset in data.get("assets", [])
+                for asset in assets  # Iterate directly over the provided list
             ],
             "asset_group": [
                 {
@@ -89,13 +87,9 @@ def portfolio_stats():
             ],
         }
 
-        # Log successful processing of the request
         app.logger.info(f'Successfully processed /portfolio_stats request')
-
-        # Return the formatted stats as a JSON response
         return jsonify(response)
 
     except Exception as e:
-        # Log the error along with a message indicating the request could not be processed
         app.logger.error(f'Failed to process /portfolio_stats request: {str(e)}', exc_info=True)
         return jsonify({'error': 'An error occurred processing the portfolio stats'}), 500
