@@ -30,4 +30,9 @@ The export command sets the environment variable for the current terminal sessio
 
 ________________________________________________________
 
-Working.
+To Push to Production on pythonanywhere.com:
+Open up BASH command line and enter:
+cd portfolio_matrix_algos
+* Navigates to the root directory
+TO PULL FROM GITHUB:
+git pull origin main
