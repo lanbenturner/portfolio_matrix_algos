@@ -36,4 +36,6 @@ cd portfolio_matrix_algos
 * Navigates to the root directory
 TO PULL FROM GITHUB:
 git pull origin main
-    
+
+TO RUN VIRTUAL ENVRONMENT IN PRODUCTION:
+workon portfolio_matrix_env
