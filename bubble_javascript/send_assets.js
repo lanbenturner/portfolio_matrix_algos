@@ -29,10 +29,14 @@ console.log("Assets List (Before Parsing):", assetsList);
 var compiledAssets = assetsList.map(function(asset) {
     return {
         symbol: asset.Symbol,
-        equity: asset.Equity,
+        equity: parseFloat(asset.Equity), // Convert the string 'Equity' to a floating-point number
         group_assignment: asset["Group Assignment"]
     };
 });
+
+var compiledAssetsJson = JSON.stringify(compiledAssets);
+console.log("Compiled Assets JSON:", compiledAssetsJson);
+
 
 var compiledAssetsJson = JSON.stringify(compiledAssets);
 console.log("Compiled Assets JSON:", compiledAssetsJson);
