@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask_cors import CORS  # Import CORS here
 from .api.views.views_stats import stats_blueprint
 from .api.views.views_invest import invest_blueprint
 import os
@@ -11,6 +12,7 @@ from config import DevelopmentConfig, ProductionConfig
 
 def create_app(config_name=None):
     app = Flask(__name__)
+    CORS(app)  # Enable CORS for the app, add this line
 
     if config_name is None:
         config_name = os.getenv("FLASK_CONFIG", "DevelopmentConfig")
@@ -48,7 +50,7 @@ def create_app(config_name=None):
         # Add the file handler to the app's logger
         app.logger.addHandler(file_handler)
         app.logger.setLevel(log_level)
-        app.logger.info('YourApp startup')
+        app.logger.info('Portfolio Matrix API startup')
 
     # Generic error handler
     @app.errorhandler(Exception)

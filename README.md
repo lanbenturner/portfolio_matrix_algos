@@ -36,3 +36,4 @@ cd portfolio_matrix_algos
 * Navigates to the root directory
 TO PULL FROM GITHUB:
 git pull origin main
+    
