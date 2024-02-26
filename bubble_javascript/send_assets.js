@@ -76,3 +76,69 @@ Delimiter:
 USE THE EXACT "FORMAT AS TEXT" to create JSON arrays
 */
 
+
+
+
+
+
+
+// BELOW IS FUNCTIONAL BUBBLE PLUGIN CODE FOR THE SERVER SIDE POST REQUEST
+
+
+function(properties, context) {
+    // Log the properties to diagnose the issue
+    console.log('properties:', properties);
+
+    // Initialize the array to compile the data
+    let assetsArray = [];
+
+    // Ensure 'properties.asset' is defined and is an array before proceeding
+    if (Array.isArray(properties.asset)) {
+        // Loop through the 'properties.asset' property
+        properties.asset.forEach(item => {
+            // Convert 'equity' from string to float and ensure 'symbol' and 'group_assignment' are defined
+            let equityValue = parseFloat(item.value); // Convert equity to float
+            if (!isNaN(equityValue)) { // Check if the conversion is successful
+                assetsArray.push({
+                    "symbol": item.key, 
+                    "equity": equityValue, // Use the converted float value
+                    "group_assignment": item.group 
+                });
+            } else {
+                console.error("Failed to convert equity to float for item:", item);
+                // Handle the case where conversion fails, e.g., skip the item or set a default value
+            }
+        });
+    } else {
+        // Handle the case where 'properties.asset' is not as expected
+        throw new Error("'properties.asset' is not an array or is undefined.");
+    }
+
+    // Prepare the request options
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': '9e83b67c-bd1e-4c50-a6d8-f1e1137b8428'
+        },
+        body: JSON.stringify(assetsArray)
+    };
+
+    // Assuming 'fetch' is available in the server-side environment
+    return fetch('https://a1d35ea4-b208-4439-8824-5fba42dc2c8e.mock.pstmn.io', requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            // Structure the response with 'text_response_json' as a key
+            return { 'text_response_json': JSON.stringify(data) };
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+            throw new Error(error.message);
+        });
+}
